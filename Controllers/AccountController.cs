@@ -25,9 +25,37 @@ namespace NG_Core_Auth.Controllers
         [HttpPost("action")]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel formData) 
         {
-            
+            //Will hold all the erros
+            List<string> errorList = new List<string>();
 
-            return Ok();
+            var user = new IdentityUser()
+            {
+                Email = formData.Email,
+                UserName = formData.Username,
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+
+            var result = await _userManager.CreateAsync(user, formData.Password);
+
+            if (result.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(user, "Customer");
+
+                //Sending Confirmation Email
+
+
+                return Ok(new { username = user.UserName, email = user.Email, status = 1, message = "Registration was Successful" });
+
+            }
+            else
+            {
+               foreach (var er in result.Errors)
+                {
+                    ModelState.AddModelError("", er.Description);
+                    errorList.Add(er.Description);
+                }
+                return BadRequest(new JsonResult(errorList));
+            }
 
         }
     }
