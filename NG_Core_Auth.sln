@@ -1,0 +1,17 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NG_Core_Auth", "NG_Core_Auth.csproj", "{EDAC26CE-95E7-42DE-8B96-47E65BC1AE08}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EDAC26CE-95E7-42DE-8B96-47E65BC1AE08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDAC26CE-95E7-42DE-8B96-47E65BC1AE08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDAC26CE-95E7-42DE-8B96-47E65BC1AE08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDAC26CE-95E7-42DE-8B96-47E65BC1AE08}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
