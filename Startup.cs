@@ -1,4 +1,6 @@
 using System;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -8,7 +10,9 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using NG_Core_Auth.Data;
+using NG_Core_Auth.Helpers;
 
 namespace NG_Core_Auth
 {
@@ -63,6 +67,48 @@ namespace NG_Core_Auth
 
 
             }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+
+
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
+
+            var appSettings = appSettingsSection.Get<AppSettings>();
+            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+
+            // Authentication Middleware
+            services.AddAuthentication(o => {
+                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+
+             }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+             {
+                 options.TokenValidationParameters = new TokenValidationParameters
+                 {
+                     ValidateIssuerSigningKey = true,
+                     ValidateIssuer = true,
+                     ValidateAudience = true,
+                     ValidIssuer = appSettings.Site,
+                     ValidAudience = appSettings.Audience,
+                     IssuerSigningKey = new SymmetricSecurityKey(key)
+                 };
+             });
+
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequiredLoggedIn", policy => policy.RequireRole("Admin", "Customer", "Moderator").RequireAuthenticatedUser());
+                options.AddPolicy("RequiredAdministratorRole", policy => policy.RequireRole("Admin").RequireAuthenticatedUser());
+
+
+            });
+            /* Requirements:
+                User should be Authenticated
+                User should be Authorized
+                In Order to vieww product (GetAllProducts)
+
+                */
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -84,6 +130,7 @@ namespace NG_Core_Auth
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {
